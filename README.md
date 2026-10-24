@@ -27,7 +27,7 @@
 [⚠️ Disclaimer](#-legal-disclaimer)
 
 </div>
-
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRB983J0k4o61YPYyOce5G5vHvbcPSTQ0-gTNse1-w3fw&s=10
 ---
 
 <div align="center">
@@ -53,7 +53,7 @@ Both versions are **pure simulation**:
 - ✅ Just cool visuals + fake outputs
 
 Perfect for **pranks, demos, videos, or learning how security tools *look***.
-
+https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSOmh9FSaCiY3T1xEbEHp4LsxwJ4e97yU5wl_tfcsJyjQ&s=10
 ---
 
 ## ⚡ Quick Install
@@ -61,7 +61,7 @@ Perfect for **pranks, demos, videos, or learning how security tools *look***.
 ### 🐧 Linux / 🍎 macOS / 📱 Termux
 
 **One-liner install:**
-
+https://www.google.com/imgres?q=skull%20gif%20honted&imgurl=https%3A%2F%2Fi.pinimg.com%2Foriginals%2Ff3%2F4e%2F9b%2Ff34e9bd0dec7df1b606fe6e5f7a0d7b2.gif&imgrefurl=https%3A%2F%2Fwww.pinterest.com%2Fpin%2F950189221360978808%2F&docid=SWG_RlHbX_L5DM&tbnid=Qngr3NkMl1Em-M&vet=12ahUKEwiArsHBodKXAxWpSmwGHQxqOzwQnPAOegUIoQQQAA..i&w=360&h=640&hcb=2&ved=2ahUKEwiArsHBodKXAxWpSmwGHQxqOzwQnPAOegUIoQQQAA
 ```bash
 bash <(curl -s https://raw.githubusercontent.com/Rg100152/wakack/main/install.sh)
 ```
